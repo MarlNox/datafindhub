@@ -4,6 +4,12 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+      <link rel="icon" type="image/x-icon" href="static/images/pwc-favicon.ico" />
+        <link rel="stylesheet" href="static/css/summarizer.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/vendor.min.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/appkit.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
@@ -31,7 +37,7 @@
                 console.log(name);
                 window.location = "/get_table/";
               }
-              console.log(data["state"]);
+              console.log(data["state"],data['info']);
 
             },
             error: function (error,text,xhr) {
@@ -45,13 +51,90 @@
 
   </script>
   </head>
-  <body>
-    <div class="progress mt-3" id="progress_div">
+
+
+
+        <body class="no-outline">
+        <div class="d-flex flex-column a-bg-f5f a-template-container">
+
+            <!-- Notifications sticky bar -->
+            <div class="bar a-notification a-notification-hide a-transition-500ms" data-hide="3">
+                <span class="notification-content">
+                    <span id="notification-text" class="text-left"></span>
+                </span>
+                <div class="a-countdown-wrapper">
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="a-header a-hfn-header-container d-flex align-items-center justify-content-between a-px-20">
+                <div class="d-flex align-items-center">
+                    <div class="a-pwc-logo a-md"></div>
+                    <span class="divider a-mx-20"></span>
+                    <div class="font-weight-medium a-nowrap">PwC Datafind</div>
+                    <span class="divider a-mx-20"></span>
+                </div>
+                <div class="d-flex align-items-center a-pl-10">
+                    <div class="a-logout d-none d-md-flex">
+                        <button aria-expanded="false" aria-haspopup="true" class="user-name a-bg-primary a-text-white size-24" data-toggle="dropdown">FL</button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <div class="user-logout">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-sm-flex d-md-none a-logout align-items-center">
+                        <button class="user-name a-bg-primary a-text-white size-24" aria-expanded="false" aria-haspopup="true"data-toggle="dropdown">
+                            <span class="appkiticon icon-menu-outline"></span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <ul class="user-infor-list">
+                                <li class="user-infor-list-item active-link"><a href="preproc">PwC Datafind</a></li>
+
+                            </ul>
+                            <div class="user-logout border-top">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+    </div>
+    <div class="progress mt-3" id="progress_div" style="width: 80%; margin: auto">
       <div class="progress-bar" style="width: 0%" id="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+
     </div>
 
     <div id="info" class="mt-3"></div>
 
+<div>
+
+</div>
+
+   <div class="a-template-content a-bg-f5f" id="hfn-content-container">
+                <div class="container" style="max-width: 1200px!important;">
+
+                    <div class="row d-flex">
+                        <div class="col-12 d-table">
+                            <div class="a-panel a-m-20">
+                                <div class="a-panel-header"><span>Wait for TP Datafind to process all the company websites.</span></div>
+                                <div class="a-pb-20 a-pt-10 mw-100-percent overflow-hidden">
+                                    <div class="a-font-16">
+                                      <br />
+                                      <img src="{% static 'yellow.gif'%}" style="display: block; margin-left: auto; margin-right: auto; width=30%">
+                                 </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
 
   </body>
+
 </html>

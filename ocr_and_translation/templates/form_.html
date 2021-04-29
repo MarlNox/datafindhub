@@ -4,8 +4,16 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>PwC Datafind</title>
     {% load static %}
+    <meta charset="utf-8" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="icon" type="image/x-icon" href="static/images/pwc-favicon.ico" />
+        <link rel="stylesheet" href="static/css/summarizer.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/vendor.min.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/appkit.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -48,17 +56,56 @@
       })
     </script>
   </head>
-  <body style="background-color:#ffffff">
+      <body class="no-outline">
+        <div class="d-flex flex-column a-bg-f5f a-template-container">
 
-    <div class="container-fluid" style="color:#ffffff;background-color:#d93954;font-family:'Calibri'">
+            <!-- Notifications sticky bar -->
+            <div class="bar a-notification a-notification-hide a-transition-500ms" data-hide="3">
+                <span class="notification-content">
+                    <span id="notification-text" class="text-left"></span>
+                </span>
+                <div class="a-countdown-wrapper">
+                </div>
+            </div>
+<!-- Header -->
+            <div class="a-header a-hfn-header-container d-flex align-items-center justify-content-between a-px-20">
+                <div class="d-flex align-items-center">
+                    <div class="a-pwc-logo a-md"></div>
+                    <span class="divider a-mx-20"></span>
+                    <div class="font-weight-medium a-nowrap">Transfer Pricing Web Scraper</div>
+                    <span class="divider a-mx-20"></span>
+                    <ul class="d-none d-md-flex menu">
+                        <li class="font-weight-medium a-nowrap item active-link"><a href="form_.html">Home</a></li>
+                        <li class="font-weight-medium a-nowrap item active-link"><a href="tutorial.html">Tutorial</a></li>
 
-      <div class="py-2 text-center">
-        <blockquote class="blockquote text-center">
-          <h1 class="display-4"><img src="{% static 'kisspng.png'%}" width="20%" height="30%"></img>Welcome to TP DataFind</h1>
-        </blockquote>
-      </div>
-    </div>
-    <div class="container">
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center a-pl-10">
+                    <div class="a-logout d-none d-md-flex">
+                        <button aria-expanded="false" aria-haspopup="true" class="user-name a-bg-primary a-text-white size-24" data-toggle="dropdown">FL</button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <div class="user-logout">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-sm-flex d-md-none a-logout align-items-center">
+                        <button class="user-name a-bg-primary a-text-white size-24" aria-expanded="false" aria-haspopup="true"data-toggle="dropdown">
+                            <span class="appkiticon icon-menu-outline"></span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <ul class="user-infor-list">
+                            </ul>
+                            <div class="user-logout border-top">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
 
       {% if required %}
       <div class="alert alert-danger" role="alert">
@@ -66,7 +113,7 @@
       </div>
       {% endif %}
 
-      <form action='{% url "upload_custom" %}' method="post" enctype="multipart/form-data" style="font-family:'Calibri';font-size:1.2rem">
+      <form action='{% url "upload_custom" %}' method="post" enctype="multipart/form-data" style="font-family:'Calibri';font-size:1.2rem; width: 90%; margin: auto">
         {% csrf_token %}
         <div class="input-group my-3">
           <!-- <div class="input-group-prepend">
@@ -107,11 +154,107 @@
 
 
         <div style="padding-top:10px"/>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="a-btn a-btn-primary a-btn-md w-8">Submit</button>
 
       </form>
     </div>
 
+ <div class="a-template-content a-bg-f5f" id="hfn-content-container">
+                <div class="container" style="max-width: 1200px!important;">
+
+                    <div class="row d-flex">
+                        <div class="col-12 d-table">
+                            <div class="a-panel a-m-20">
+                                <div class="a-panel-header"><span>To use Transfer Pricing Web Scraper please follow the steps outlined below:</span></div>
+                                <div class="a-pb-20 a-pt-10 mw-100-percent overflow-hidden">
+                                    <div class="a-font-16">
+                                        1. Upload a .csv or .txt file containing the Extracted Websites, Names and BvD Numbers of the companies being researched.<br />
+                                        2. Assign a name to the output file which will contain the extracted information.<br />
+                                        3. Wait for the process to finish creating screenshots, extracting them and providing the final analytical table.<br />
+                                        4. Use the highlighter option to highlight positively correlated keywords, and negatively correlated keywords with your search/analysis.<br />
+                                        5. For a more in depth tutorial, and a template file please check our Tutorial Page. <br />
+                                 </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<div><div class="newPageFooter parbase section">
+
+
+
+
+
+
+
+
+<!-- START Sitemap Footer -->
+    <div class="dpe-component-wrapper glb-footer glb-footer__block--reduced">
+    <div class="container">
+
+
+
+
+
+
+
+
+
+
+
+<!-- Code from old JSP -->
+
+
+
+<!-- Code from old JSP ends -->
+
+
+
+
+
+
+
+
+
+
+<!-- START Copyright statement -->
+<div class="row">
+    <div class="col-xs-12  ">
+        <div class="glb-footer__disclaimer">
+            <div class="row">
+                <div class="col-md-8 glb-footer__disclaimer-text">
+
+
+                    <p>©&nbsp;2021  PwC. All rights reserved. PwC refers to the PwC network and/or one or more of its member firms, each of which is a separate legal entity. Please see www.pwc.com/structure for further details. </p>
+                    <!-- optional disclaimer links -->
+                    <ul class="glb-footer__disclaimer-links" id="pgFooter">
+
+
+                                <li><a href="/al/en/privacy-statement.html" target="_blank">Privacy</a></li>
+
+                                <li><a href="/al/en/cookie-information.html" target="_blank">Cookies policy</a></li>
+
+                                <li><a href="/gx/en/site-information/legal-disclaimer.html" target="_blank">Legal</a></li>
+
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Copyright statement -->
+
+<!-- Code from old JSP -->
+
+<!-- Code from old JSP ends -->
+
+
+
+
+	</div>
+</div>
+
+<!-- END Sitemap Footer -->
     <script>
 
     function remove(element) {

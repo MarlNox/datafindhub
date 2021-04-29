@@ -1,7 +1,7 @@
 # from celery import app
 from django.conf import settings
 from .step_1_greyX_TP import scrap_the_file
-from pydrive.auth import GoogleAuth
+from pydrive2.auth import GoogleAuth
 import os
 import pandas as pd
 from .models import InterSavedModel

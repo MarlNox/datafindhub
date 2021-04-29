@@ -18,8 +18,8 @@ from .models import SavedModel, InterSavedModel
 from .step_1_greyX_TP import scrap_the_file
 from .tasks import upload_via_celery
 
-from pydrive.auth import GoogleAuth, AuthenticationError
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth, AuthenticationError
+from pydrive2.drive import GoogleDrive
 import pandas as pd
 import json
 from django.utils import timezone
@@ -47,6 +47,13 @@ def authorized_view(request):
 
     cred_file = re.sub('[\W_]+', '', "file_{}".format(str(timezone.now()))) + ".txt"
     gauth.SaveCredentialsFile(credentials_file=cred_file)
+    #
+    # drive = GoogleDrive(gauth)
+    # file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
+    # for f in file_list:
+    #     if f['mimeType'] == 'application/vnd.google-apps.folder' and f['title'] == "full_screenshots":
+    #         folder_list = drive.ListFile({'q': f"'{f['id']}' in parents and trashed=false"}).GetList()
+    #         print(folder_list)
 
     request.session["cred_file"] = cred_file
 
@@ -89,6 +96,7 @@ def uplo_custom(request):
 
         # cred_file = re.sub('[\W_]+', '', "file_{}".format(str(timezone.now())))+".txt"
         cred_file = request.session["cred_file"]
+        print(cred_file)
 
         model = FileModel(file_field=file, cred_file_field=File(open(cred_file, "r")))
         model.save()
@@ -96,7 +104,7 @@ def uplo_custom(request):
         filename = model.file_field.name
         cred_file_ = model.cred_file_field.name
 
-        task = upload_via_celery_home.delay(open(settings.MEDIA_ROOT + "/" + filename).read().splitlines(),
+        task = upload_via_celery_home.delay(open(settings.MEDIA_ROOT + "/" + filename,encoding="utf-8").read().splitlines(),
                                             file_name, open(settings.MEDIA_ROOT + "/" + cred_file_).read())
         model.delete()
 
@@ -159,6 +167,7 @@ class SavedModelViewSet(ModelViewSet):
 def upload_via_celery_home(self, name, file_name, cred_file):
     self.update_state(state='PROGRESS')
     cred_name = str(timezone.now())
+    cred_name = re.sub('[\W_]+', '', "file_{}".format(cred_name)) + ".txt"
     with open(settings.MEDIA_ROOT + "/uploaded/" + cred_name + ".txt", "w") as file:
         file.write(cred_file)
         file.close()
@@ -186,6 +195,8 @@ def upload_via_celery_home(self, name, file_name, cred_file):
     file.Upload()
 
     if os.path.exists("csv_{}.csv".format(csv_name)):
-        os.remove("csv_{}.csv".format(csv_name))
-
+        try:
+            os.remove("csv_{}.csv".format(csv_name))
+        except:
+            pass
     return json_str, file.metadata["embedLink"]

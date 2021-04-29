@@ -12,8 +12,11 @@ from PIL import Image
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.utils import timezone
-from googletrans import Translator
-from pydrive.drive import GoogleDrive
+from google_trans_new import google_translator as Translator
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+import pydrive2
+
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
@@ -29,7 +32,7 @@ CHROMEDRIVER_PATH = './executable/chromedriver'
 class scraper:
     def __init__(self, driver, base_url):
         self.history = []
-        self.url_dict = {"web_address": [], "original_text": [], "translated_text": [], "link": [], "link_name": [],
+        self.url_dict = {"web_address": [], "original_text": [], "translated": [], "link": [], "link_name": [],
                          "image": [], "hyperlink": [], "img": [], "image_data": []}
 
         self.driver = driver
@@ -53,7 +56,7 @@ class scraper:
             if not os.path.exists(self.tmp):
                 os.makedirs(self.tmp)
 
-    def start(self, url, gauth, task, pr, a):
+    def start(self, url, gauth, task, pr, a,name_of_folder):
         isOurAbsOrRelAndNotCss = lambda x: ("http" not in x or self.base_url in x) and '#' not in x
         try:
             # skip any that are already not our base domain
@@ -73,7 +76,7 @@ class scraper:
                     scrapedUrls = self.parseUrls()
                     # limit filename length
                     # print("SAVED:",url)
-                    self.saveImage(self.driver.title[:100] + ".png", url, gauth)
+                    self.saveImage(self.driver.title[:100] + ".png", url, gauth,name_of_folder)
                     for scrapedUrl in scrapedUrls:
                         # its a relative link, lets re add the base url
                         if "http" not in scrapedUrl:
@@ -83,7 +86,7 @@ class scraper:
                             self.history.append(scrapedUrl + "/")
                             self.history.append(scrapedUrl + "#")
 
-                            self.start(scrapedUrl, gauth, task, pr, a)
+                            self.start(scrapedUrl, gauth, task, pr, a, name_of_folder)
             return self.url_dict
         except WebDriverException:
             print(f"Failed processing:{'url'}")
@@ -94,11 +97,11 @@ class scraper:
         urls = [url["href"].rstrip('/') for url in urls[:limit]]
         return list(set(urls))
 
-    def saveImage(self, filename, url, gauth):
+    def saveImage(self, filename, url, gauth,name_of_folder):
         yDelta, xDelta, fullWidth, fullHeight, windowHeight = self.getDimensions()
         self.triggerAnimations(fullHeight)
         images = self.processImages(yDelta, xDelta, fullWidth, fullHeight, windowHeight)
-        self.stitchScreenshots(images, fullWidth, fullHeight, filename, url, gauth)
+        self.stitchScreenshots(images, fullWidth, fullHeight, filename, url, gauth,name_of_folder)
         self.clear_tmp()
 
     def triggerAnimations(self, fullHeight):
@@ -150,7 +153,7 @@ class scraper:
                 base.close()
         return images
 
-    def stitchScreenshots(self, images, total_width, total_height, filename, url, gauth):
+    def stitchScreenshots(self, images, total_width, total_height, filename, url, gauth,name_of_folder):
         stitched_image = Image.new('RGB', (total_width, total_height))
         y_offset = 0
         for im in images:
@@ -163,7 +166,6 @@ class scraper:
 
         t_s = re.sub(r'[\W_]+', '', str(timezone.now()))
         full_name = f"{kos}_{t_s}.jpg"
-        print(full_name)
         stitched_image.save(f"{self.full}/{full_name}")
 
         stitched_image = stitched_image.resize((100, 100))
@@ -172,24 +174,26 @@ class scraper:
 
         name = f"{kos},{fname}"
 
-        drive = GoogleDrive(gauth)
-        list_ = ListFolder("root", drive)
-        try:
-            file = drive.CreateFile({'parents': [{"id": list_["full_screenshots"]}]})
-            file.SetContentFile(f"{self.full}/{full_name}")
-            file["title"] = url.replace("/", "X")
-            thr = threading.Thread(target=file.Upload)
-            thr.start()
-        except KeyError:
-            folder_metadata = {'title': 'full_screenshots', 'mimeType': 'application/vnd.google-apps.folder'}
-            folder = drive.CreateFile(folder_metadata)
-            thr = threading.Thread(target=folder.Upload)
-            thr.start()
-            file = drive.CreateFile({'parents': [{"id": list_["full_screenshots"]}]})
-            file.SetContentFile(f"{self.full}/{full_name}")
-            file["title"] = url.replace("/", "X")
-            thr = threading.Thread(target=file.Upload)
-            thr.start()
+        file = self.upload_file_on_separate_thread(gauth,name_of_folder,full_name,url)
+        # drive = GoogleDrive(gauth)
+        # list_ = ListFolder("root", drive)
+        # try:
+        #     file = drive.CreateFile({'parents': [{"id": list_["full_screenshots"]}]})
+        #     file.SetContentFile(f"{self.full}/{full_name}")
+        #     file["title"] = url.replace("/", "X")
+        #     thr = threading.Thread(target=file.Upload)
+        #     thr.start()
+        # except KeyError:
+        #     folder_metadata = {'title': 'full_screenshots', 'mimeType': 'application/vnd.google-apps.folder'}
+        #     folder = drive.CreateFile(folder_metadata)
+        #     thr = threading.Thread(target=folder.Upload)
+        #     thr.start()
+        #
+        #     file = drive.CreateFile({'parents': [{"id": list_["full_screenshots"]}]})
+        #     file.SetContentFile(f"{self.full}/{full_name}")
+        #     file["title"] = url.replace("/", "X")
+        #     thr = threading.Thread(target=file.Upload)
+        #     thr.start()
 
         original = main(f"{self.full}/{full_name}")
 
@@ -201,16 +205,16 @@ class scraper:
         saved.original_text = original
 
         try:
-            saved.translated_text = translated.text
+            saved.translated = translated
         except:
-            saved.translated_text = " "
+            saved.translated = " "
         saved.link = file.metadata.get("embedLink")
         saved.link_name = name
         saved.save()
 
         self.url_dict["web_address"].append(self.base_url)
         self.url_dict["original_text"].append(original)
-        self.url_dict["translated_text"].append(translated.text)
+        self.url_dict["translated"].append(translated)
         self.url_dict["link"].append(file.metadata.get("embedLink"))
         self.url_dict["link_name"].append(name.replace("%20", " ").replace("%", " ").replace("/n", ""))
         self.url_dict["image"].append("static/permanent/" + per_name)
@@ -226,6 +230,76 @@ class scraper:
         for fileName in fileList:
             os.remove(dirPath + "/" + fileName)
 
+    def upload_file_on_separate_thread(self,gauth,name_of_folder,full_name,url):
+        drive = GoogleDrive(gauth)
+        list_ = ListFolder("root", drive)
+        try:
+            # file = drive.CreateFile({'parents': [{"id": list_["full_screenshots"]}]})
+            # file.SetContentFile(f"{self.full}/{full_name}")
+            # file["title"] = url.replace("/", "X")
+            # file.Upload()
+            list_full = ListFolderId(list_["full_screenshots"], drive,name_of_folder)
+            try:
+                file = drive.CreateFile({'parents': [{"id": list_full[name_of_folder]}]})
+                file.SetContentFile(f"{self.full}/{full_name}")
+                file["title"] = url.replace("/", "X")
+                file.Upload()
+            except KeyError:
+                folder_metadata = {'title': name_of_folder, 'mimeType': 'application/vnd.google-apps.folder','parents': [{"id": list_["full_screenshots"]}]}
+                folder = drive.CreateFile(folder_metadata)
+                folder.Upload()
+
+                list_ = ListFolder("root", drive)
+                list_full = ListFolderId(list_["full_screenshots"], drive,name_of_folder)
+
+                file = drive.CreateFile({'parents': [{"id": list_full[name_of_folder]}]})
+                file.SetContentFile(f"{self.full}/{full_name}")
+                file["title"] = url.replace("/", "X")
+                file.Upload()
+
+        except KeyError:
+            folder_metadata = {'title': 'full_screenshots', 'mimeType': 'application/vnd.google-apps.folder'}
+            folder = drive.CreateFile(folder_metadata)
+            folder.Upload()
+            list_ = ListFolder("root", drive)
+
+            list_full = ListFolderId(list_["full_screenshots"], drive,name_of_folder)
+            try:
+                file = drive.CreateFile({'parents': [{"id": list_full[name_of_folder]}]})
+                file.SetContentFile(f"{self.full}/{full_name}")
+                file["title"] = url.replace("/", "X")
+                file.Upload()
+            except KeyError:
+                folder_metadata = {'title': name_of_folder, 'mimeType': 'application/vnd.google-apps.folder','parents': [{"id": list_["full_screenshots"]}]}
+                folder = drive.CreateFile(folder_metadata)
+                folder.Upload()
+                list_ = ListFolder("root", drive)
+
+                list_full = ListFolderId(list_["full_screenshots"], drive,name_of_folder)
+                file = drive.CreateFile({'parents': [{"id": list_full[name_of_folder]}]})
+                file.SetContentFile(f"{self.full}/{full_name}")
+                file["title"] = url.replace("/", "X")
+                file.Upload()
+
+        return file
+
+def ListFolder(parent, drive):
+    filelist = {}
+    file_list = drive.ListFile({'q': "'%s' in parents and trashed=false" % parent}).GetList()
+    for f in file_list:
+        if f['mimeType'] == 'application/vnd.google-apps.folder' and f['title'] == "full_screenshots":
+            filelist[f["title"]] = f["id"]
+
+    return filelist
+
+def ListFolderId(id, drive,name):
+    filelist = {}
+    file_list = drive.ListFile({'q': "'%s' in parents and trashed=false" % id}).GetList()
+    for f in file_list:
+        if f['mimeType'] == 'application/vnd.google-apps.folder' and f['title'] == name:
+            filelist[f["title"]] = f["id"]
+
+    return filelist
 
 def clear_full():
     dirPath = settings.MEDIA_ROOT + '/screenshots/full/'
@@ -236,6 +310,10 @@ def clear_full():
 
 def scrap_the_file(name, gauth, task):
     pr = 0
+    def get_name(split):
+        if split[1] == '':
+            return split[2]
+        return split[1]
 
     if type(name) == str:
         f = open(settings.MEDIA_ROOT + "/" + name)
@@ -244,8 +322,9 @@ def scrap_the_file(name, gauth, task):
         # for i in ["https://www.devatus.fi"]:
         task.update_state(state='PROGRESS', meta={'done': 0, 'total': len(a.splitlines())})
         for i in a.splitlines():
-            if "http" not in i:
-                i = "https://" + i
+            name_of_folder = get_name(i.split(','))
+            if "http" not in i.split(',')[0]:
+                i = "https://" + i.split(',')[0]
             url = (i)
             options = webdriver.ChromeOptions()
             options.add_argument('--headless')
@@ -254,14 +333,14 @@ def scrap_the_file(name, gauth, task):
             if platform.system() == "Darwin":
                 driver = webdriver.Chrome(CHROMEDRIVER_PATH, options=options)
             elif platform.system() == "Windows":
-                driver = webdriver.Chrome(settings.EXECUTABLE_ROOT + "/chromedriver_win.exe", options=options)
+                driver = webdriver.Chrome(settings.EXECUTABLE_ROOT + "/chromedriver__win.exe", options=options)
             else:
                 driver = webdriver.Chrome(CHROMEDRIVER_PATH, options=options)
 
             try:
                 print("ABOUT TO GET STARTED...")
                 w = scraper(driver, url)
-                w.start(url, gauth, task, pr, len(a.splitlines()))
+                w.start(url, gauth, task, pr, len(a.splitlines()),name_of_folder)
                 w.clear_tmp()
             except Exception as exc:
                 print(exc)
@@ -273,10 +352,12 @@ def scrap_the_file(name, gauth, task):
         clear_full()
 
     else:
-        url_dict = {"web_address": [], "original_text": [], "translated_text": [], "name": [], "hyperlink": [],
+        url_dict = {"web_address": [], "original_text": [], "translated": [], "name": [], "hyperlink": [],
                     "img": [], "link_to_image": [], "drive_link": [], "image_data": []}
         task.update_state(state='PROGRESS', meta={'done': 0, 'total': len(name)})
         for i in name:
+            name_of_folder = get_name(i.split(','))
+            i = i.split(',')[0]
             if "http" not in i:
                 i = "https://" + i
             url = (i)
@@ -288,18 +369,18 @@ def scrap_the_file(name, gauth, task):
             if platform.system() == "Darwin":
                 driver = webdriver.Chrome(CHROMEDRIVER_PATH, options=options)
             elif platform.system() == "Windows":
-                driver = webdriver.Chrome(settings.EXECUTABLE_ROOT + "/chromedriver_win.exe", options=options)
+                driver = webdriver.Chrome(settings.EXECUTABLE_ROOT + "/chromedriver__win.exe", options=options)
             else:
                 driver = webdriver.Chrome(CHROMEDRIVER_PATH, options=options)
 
             try:
                 print("ABOUT TO GET STARTED...")
                 w = scraper(driver, url)
-                dict_ = w.start(url, gauth, task, pr, len(name))
+                dict_ = w.start(url, gauth, task, pr, len(name),name_of_folder)
 
                 url_dict["web_address"].extend(dict_["web_address"])
                 url_dict["original_text"].extend(dict_["original_text"])
-                url_dict["translated_text"].extend(dict_["translated_text"])
+                url_dict["translated"].extend(dict_["translated"])
                 url_dict["name"].extend(dict_["link_name"])
                 url_dict["hyperlink"].extend(dict_["hyperlink"])
                 url_dict["img"].extend(dict_["img"])
@@ -316,13 +397,3 @@ def scrap_the_file(name, gauth, task):
             task.update_state(state='PROGRESS', meta={'done': pr, 'total': len(name)})
         clear_full()
         return url_dict
-
-
-def ListFolder(parent, drive):
-    filelist = {}
-    file_list = drive.ListFile({'q': "'%s' in parents and trashed=false" % parent}).GetList()
-    for f in file_list:
-        if f['mimeType'] == 'application/vnd.google-apps.folder' and f['title'] == "full_screenshots":
-            filelist[f["title"]] = f["id"]
-
-    return filelist

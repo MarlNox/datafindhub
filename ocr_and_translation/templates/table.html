@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" xmlns="http://www.w3.org/1999/html">
   <head>
     <meta charset="utf-8">
     <title></title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+  <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/sandstone/bootstrap.min.css'><link rel="stylesheet" href="./style.css">
+<script  src="./script.js"></script>
+
+
+
+        <link rel="icon" type="image/x-icon" href="static/images/pwc-favicon.ico" />
+        <link rel="stylesheet" href="static/css/summarizer.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/vendor.min.css">
+        <link rel="stylesheet" href="https://pwcappkit-static.azureedge.net/cdn/release/3.0.0/appkit.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
   </head>
   <script>
     $(document).ready(function(){
@@ -24,17 +36,112 @@
 
 
   </script>
+</head>
+
   <body>
+
+  <!-- partial:index.partial.html -->
+<div class="container">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <form class="row">
+        <div class="col-xs-6">
+          <div class="form-group">
+            <label for="keyword">Keywords to be highlighted:</label>
+            <input type="text" class="form-control input-sm" value="Lorem" name="keyword" id="keyword">
+          </div>
+        <button type="button" class="btn btn-default btn-sm" name="perform">Highlight keywords</button>
+        </div>
+        <div class="col-xs-6">
+          <div class="form-group">
+            <label for="accuracy">Accuracy:</label>
+            <select class="form-control input-sm" name="accuracy" id="accuracy">
+              <option value="exactly">exactly</option>
+              <option value="partially" selected>partially</option>
+              <option value="complementary">complementary</option>
+             </select>
+          </div>
+
+          <div class="form-group">
+            <label for="diacritics" class="noTransform"><input type="checkbox" value="true" name="diacritics" id="diacritics" checked>Activate Diacritics Recognition</label>
+          </div>
+        </div>
+      </form>
+      </div>
+
+
+  </div>
+</div>
+<!-- partial -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+</div>
     <div class="container" style="color:#000000;font-family:'Calibri'">
 
       <div class="py-2">
-        <blockquote class="blockquote">
-          <a href="{% url 'upload_form' %}"><img style="background-color:black" src="{% static 'kisspng.png'%}" width="20%" height="30%"></img></a>
-        </blockquote>
+      <body class="no-outline">
+        <div class="d-flex flex-column a-bg-f5f a-template-container">
+
+            <!-- Notifications sticky bar -->
+            <div class="bar a-notification a-notification-hide a-transition-500ms" data-hide="3">
+                <span class="notification-content">
+                    <span id="notification-text" class="text-left"></span>
+                </span>
+                <div class="a-countdown-wrapper">
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="a-header a-hfn-header-container d-flex align-items-center justify-content-between a-px-20">
+                <div class="d-flex align-items-center">
+                    <div class="a-pwc-logo a-md"></div>
+                    <span class="divider a-mx-20"></span>
+                    <div class="font-weight-medium a-nowrap">PwC Datafind</div>
+                    <span class="divider a-mx-20"></span>
+                </div>
+                <div class="d-flex align-items-center a-pl-10">
+                    <div class="a-logout d-none d-md-flex">
+                        <button aria-expanded="false" aria-haspopup="true" class="user-name a-bg-primary a-text-white size-24" data-toggle="dropdown">FL</button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <div class="user-logout">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-sm-flex d-md-none a-logout align-items-center">
+                        <button class="user-name a-bg-primary a-text-white size-24" aria-expanded="false" aria-haspopup="true"data-toggle="dropdown">
+                            <span class="appkiticon icon-menu-outline"></span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right a-shadow-sm border-0 a-user-setting-panel-one w-15">
+                            <div class="dropdown-title">WELCOME FIRST LASTNAME</div>
+                            <ul class="user-infor-list">
+                                <li class="user-infor-list-item active-link"><a href="preproc">PwC Datafind</a></li>
+
+                            </ul>
+                            <div class="user-logout border-top">
+                                <button class="sign-out-btn a-btn a-btn-primary a-btn-lg">Log Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
       </div>
     </div>
     <div class="container">
-      <a role="button" href="{{ csv_link }}" class="btn btn-primary mb-5">CSV file</a>
+      <a role="button" href="{{ csv_link }}" class="a-btn a-btn-primary a-btn-md w-8">Download Table in CSV format</a>
       <table class="table" id="data_table">
         <thead class="thead-dark">
           <tr>
@@ -60,6 +167,9 @@
         </tbody>
       </table>
     </div>
+  <script src='https://code.jquery.com/jquery-2.2.3.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+<script src='https://cdn.rawgit.com/julmot/mark.js/master/dist/jquery.mark.min.js'></script>
 
   </body>
 </html>
